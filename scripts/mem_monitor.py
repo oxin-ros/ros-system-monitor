@@ -163,7 +163,7 @@ class MemMonitor():
             values.append(KeyValue(key = 'Free Memory', value = free_mem+"M"))
 
             msg = mem_dict[level]
-        except Exception, e:
+        except Exception as e:
             rospy.logerr(traceback.format_exc())
             msg = 'Memory Usage Check Error'
             values.append(KeyValue(key = msg, value = str(e)))

@@ -147,7 +147,7 @@ class CPUMonitor():
                     self._temps_timer.cancel()
 
             self.check_temps()
-        except Exception, e:
+        except Exception as e:
             rospy.logerr('Unable to restart temp thread. Error: %s' % traceback.format_exc())
 
 

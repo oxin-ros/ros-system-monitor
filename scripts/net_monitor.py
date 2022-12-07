@@ -182,7 +182,7 @@ class NetMonitor():
         (retcode, cmd_out) = get_sys_net_stat(ifaces[i], 'tx_errors')
         if retcode == 0:
           values.append(KeyValue(key = 'Tx Errors', value = cmd_out))
-    except Exception, e:
+    except Exception as e:
       rospy.logerr(traceback.format_exc())
       msg = 'Network Usage Check Error'
       values.append(KeyValue(key = msg, value = str(e)))
