@@ -231,7 +231,7 @@ class CPUMonitor():
                 speed = words[1].strip().split('.')[0] # Conversion to float doesn't work with decimal
                 vals.append(KeyValue(key = 'Core %d Clock Speed' % index, value = speed+"MHz"))
 
-        except Exception, e:
+        except Exception as e:
             rospy.logerr(traceback.format_exc())
             lvl = DiagnosticStatus.ERROR
             msgs.append('Exception')
