@@ -38,17 +38,13 @@
 #    POSSIBILITY OF SUCH DAMAGE.                                           #
 ############################################################################
 
-from __future__ import with_statement
-
 import rospy
 
 import traceback
 import threading
-from threading import Timer
-import sys, os, time
+import sys
 from time import sleep
 import subprocess
-import string
 import re
 
 import socket
@@ -248,8 +244,9 @@ if __name__ == '__main__':
   try:
     rospy.init_node('net_monitor_%s' % hostname)
   except rospy.exceptions.ROSInitException:
-    print >> sys.stderr,\
-      'Network monitor is unable to initialize node. Master may not be running.'
+    print(
+      'Network monitor is unable to initialize node. Master may not be running.',
+      file=sys.stderr)
     sys.exit(0)
   net_node = NetMonitor(hostname, options.diag_hostname)
   rate = rospy.Rate(1.0)
@@ -259,7 +256,7 @@ if __name__ == '__main__':
       net_node.publish_stats()
   except KeyboardInterrupt:
     pass
-  except Exception, e:
+  except Exception as e:
     traceback.print_exc()
     rospy.logerr(traceback.format_exc())
   net_node.cancel_timers()

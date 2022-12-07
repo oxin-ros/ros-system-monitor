@@ -38,17 +38,13 @@
 #    POSSIBILITY OF SUCH DAMAGE.                                           #
 ############################################################################
 
-from __future__ import with_statement
-
 import rospy
 
 import traceback
 import threading
-from threading import Timer
-import sys, os, time
+import sys
 from time import sleep
 import subprocess
-import string
 import multiprocessing
 
 import socket
@@ -109,7 +105,7 @@ class CPUMonitor():
 
         self._temps_timer = None
         self._usage_timer = None
-        
+
         # Get temp_input files
         self._temp_vals = self.get_core_temp_names()
 
@@ -142,18 +138,18 @@ class CPUMonitor():
         self.check_temps()
         self.check_usage()
 
-    # Restart temperature checking 
+    # Restart temperature checking
     def _restart_temp_check(self):
         rospy.logerr('Restarting temperature check thread in cpu_monitor. This should not happen')
         try:
             with self._mutex:
                 if self._temps_timer:
                     self._temps_timer.cancel()
-                
+
             self.check_temps()
         except Exception, e:
             rospy.logerr('Unable to restart temp thread. Error: %s' % traceback.format_exc())
-            
+
 
     ## Must have the lock to cancel everything
     def cancel_timers(self):
@@ -429,11 +425,11 @@ class CPUMonitor():
 
         with self._mutex:
             self._last_temp_time = rospy.get_time()
-            
+
             self._temp_stat.level = diag_level
             self._temp_stat.message = message
             self._temp_stat.values = diag_vals
-            
+
             if not rospy.is_shutdown():
                 self._temps_timer = threading.Timer(5.0, self.check_temps)
                 self._temps_timer.start()
@@ -444,7 +440,7 @@ class CPUMonitor():
         if rospy.is_shutdown():
             with self._mutex:
                 self.cancel_timers()
-            return 
+            return
 
         diag_level = 0
         diag_vals = [ KeyValue(key = 'Update Status', value = 'OK' ),
@@ -463,14 +459,14 @@ class CPUMonitor():
         if mp_level > 0:
             diag_msgs.append(mp_msg)
         diag_level = max(diag_level, mp_level)
-            
+
         # Check uptime
         uptime_level, up_msg, up_vals = self.check_uptime()
         diag_vals.extend(up_vals)
         if uptime_level > 0:
             diag_msgs.append(up_msg)
         diag_level = max(diag_level, uptime_level)
-        
+
         if diag_msgs and diag_level > 0:
             usage_msg = ', '.join(set(diag_msgs))
         else:
@@ -481,9 +477,9 @@ class CPUMonitor():
             self._last_usage_time = rospy.get_time()
             self._usage_stat.level = diag_level
             self._usage_stat.values = diag_vals
-            
+
             self._usage_stat.message = usage_msg
-            
+
             if not rospy.is_shutdown():
                 self._usage_timer = threading.Timer(5.0, self.check_usage)
                 self._usage_timer.start()
@@ -505,10 +501,10 @@ class CPUMonitor():
                 self._diag_pub.publish(msg)
                 self._last_publish_time = rospy.get_time()
 
-        
+
         # Restart temperature checking if it goes stale, #4171
         # Need to run this without mutex
-        if rospy.get_time() - self._last_temp_time > 90: 
+        if rospy.get_time() - self._last_temp_time > 90:
             self._restart_temp_check()
 
 
@@ -527,7 +523,7 @@ if __name__ == '__main__':
     try:
         rospy.init_node('cpu_monitor_%s' % hostname)
     except rospy.exceptions.ROSInitException:
-        print >> sys.stderr, 'CPU monitor is unable to initialize node. Master may not be running.'
+        print('CPU monitor is unable to initialize node. Master may not be running.', file=sys.stderr)
         sys.exit(0)
 
     cpu_node = CPUMonitor(hostname, options.diag_hostname)
@@ -539,7 +535,7 @@ if __name__ == '__main__':
             cpu_node.publish_stats()
     except KeyboardInterrupt:
         pass
-    except Exception, e:
+    except Exception as e:
         traceback.print_exc()
         rospy.logerr(traceback.format_exc())
 

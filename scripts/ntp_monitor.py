@@ -126,7 +126,7 @@ def ntp_monitor_main(argv=sys.argv):
     parser.add_option("--error-offset-tolerance", dest="error_offset_tol",
                       action="store", default=5000000,
                       help="Offset from NTP host. Above this is error", metavar="OFFSET-TOL")
-    parser.add_option("--self_offset-tolerance", dest="self_offset_tol", 
+    parser.add_option("--self_offset-tolerance", dest="self_offset_tol",
                       action="store", default=500,
                       help="Offset from self", metavar="SELF_OFFSET-TOL")
     parser.add_option("--diag-hostname", dest="diag_hostname",
@@ -144,7 +144,7 @@ def ntp_monitor_main(argv=sys.argv):
         self_offset = int(options.self_offset_tol)
         error_offset = int(options.error_offset_tol)
     except:
-        parser.error("Offsets must be numbers")        
+        parser.error("Offsets must be numbers")
 
     ntp_monitor(offset, self_offset, options.diag_hostname, error_offset)
 
