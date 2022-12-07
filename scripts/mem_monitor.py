@@ -128,7 +128,7 @@ class MemMonitor():
                 values.append(KeyValue(key = "\"free -tm\" Call Error", value = str(retcode)))
                 return DiagnosticStatus.ERROR, values
 
-            rows = stdout.split('\n')
+            rows = stdout.decode("utf-8").split('\n')
             data = rows[1].split()
             total_mem_physical = data[1]
             used_mem_physical = data[2]

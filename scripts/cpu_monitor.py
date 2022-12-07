@@ -185,8 +185,8 @@ class CPUMonitor():
                               KeyValue(key = 'Output', value = stdout) ]
                 return diag_vals, diag_msgs, diag_level
 
-            tmp = stdout.strip()
-            if unicode(tmp).isnumeric():
+            tmp = stdout.decode("utf-8").strip()
+            if tmp.isnumeric():
                 temp = float(tmp) / 1000
                 diag_vals.append(KeyValue(key = 'Core %d Temperature' % index, value = str(temp)+"DegC"))
 
@@ -223,7 +223,7 @@ class CPUMonitor():
 
                 return (vals, msgs, lvl)
 
-            for index, ln in enumerate(stdout.split('\n')):
+            for index, ln in enumerate(stdout.decode("utf-8").split('\n')):
                 words = ln.split(':')
                 if len(words) < 2:
                     continue
@@ -258,7 +258,7 @@ class CPUMonitor():
                 vals.append(KeyValue(key = 'uptime Failed', value = stderr))
                 return DiagnosticStatus.ERROR, vals
 
-            upvals = stdout.split()
+            upvals = stdout.decode("utf-8").split()
             load1 = float(upvals[-3].rstrip(','))/self._num_cores
             load5 = float(upvals[-2].rstrip(','))/self._num_cores
             load15 = float(upvals[-1])/self._num_cores
@@ -305,13 +305,13 @@ class CPUMonitor():
 
             # Check which column '%idle' is, #4539
             # mpstat output changed between 8.06 and 8.1
-            rows = stdout.split('\n')
+            rows = stdout.decode("utf-8").split('\n')
             col_names = rows[2].split()
             idle_col = -1 if (len(col_names) > 2 and col_names[-1] == '%idle') else -2
 
             num_cores = 0
             cores_loaded = 0
-            for index, row in enumerate(stdout.split('\n')):
+            for index, row in enumerate(stdout.decode("utf-8").split('\n')):
                 if index < 3:
                     continue
 
@@ -391,7 +391,7 @@ class CPUMonitor():
                 rospy.logerr('Error find core temp locations: %s' % stderr)
                 return []
 
-            for ln in stdout.split('\n'):
+            for ln in stdout.decode("utf-8").split('\n'):
                 temp_vals.append(ln.strip())
 
             return temp_vals

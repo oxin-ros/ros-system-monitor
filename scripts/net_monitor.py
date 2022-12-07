@@ -85,7 +85,7 @@ def get_sys_net_stat(iface, sys):
                        stdout = subprocess.PIPE,
                        stderr = subprocess.PIPE, shell = True)
   stdout, stderr = p.communicate()
-  return (p.returncode, stdout.strip())
+  return (p.returncode, stdout.decode("utf-8").strip())
 
 def get_sys_net(iface, sys):
   cmd = 'cat /sys/class/net/%s/%s' %(iface, sys)
@@ -93,7 +93,7 @@ def get_sys_net(iface, sys):
                        stdout = subprocess.PIPE,
                        stderr = subprocess.PIPE, shell = True)
   stdout, stderr = p.communicate()
-  return (p.returncode, stdout.strip())
+  return (p.returncode, stdout.decode("utf-8").strip())
 
 class NetMonitor():
   def __init__(self, hostname, diag_hostname):
@@ -103,7 +103,7 @@ class NetMonitor():
     self._net_capacity = rospy.get_param('~net_capacity', net_capacity)
     self._usage_timer = None
     self._usage_stat = DiagnosticStatus()
-    self._usage_stat.name = 'Network Usage (%s)' % diag_hostname
+    self._usage_stat.name = f'Network Usage ({diag_hostname})'
     self._usage_stat.level = 1
     self._usage_stat.hardware_id = hostname
     self._usage_stat.message = 'No Data'
@@ -132,7 +132,7 @@ class NetMonitor():
         values.append(KeyValue(key = "\"ifstat -q -S 1 1\" Call Error",
           value = str(retcode)))
         return DiagnosticStatus.ERROR, net_dict[3], values
-      rows = stdout.split('\n')
+      rows = stdout.decode("utf-8").split('\n')
       data = rows[0].split()
       ifaces = []
       for i in range(0, len(data)):

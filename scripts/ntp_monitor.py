@@ -63,7 +63,7 @@ def ntp_monitor(offset=500, self_offset=500, diag_hostname = None, error_offset 
 
     stat = DiagnosticStatus()
     stat.level = 0
-    stat.name = "NTP offset from "+ diag_hostname + " to " + ntp_hostname
+    stat.name = f"NTP offset from {diag_hostname} to {ntp_hostname}"
     stat.message = "OK"
     stat.hardware_id = hostname
     stat.values = []
@@ -87,7 +87,7 @@ def ntp_monitor(offset=500, self_offset=500, diag_hostname = None, error_offset 
                 else:
                     raise
             if (res == 0):
-                measured_offset = float(re.search("offset (.*),", o).group(1))*1000000
+                measured_offset = float(re.search("offset (.*),", o.decode("utf-8")).group(1))*1000000
                 st.level = DiagnosticStatus.OK
                 st.message = "OK"
                 st.values = [ KeyValue("Offset (us)", str(measured_offset)),

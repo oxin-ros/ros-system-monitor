@@ -59,6 +59,7 @@ stat_dict = { 0: 'OK', 1: 'Warning', 2: 'Error' }
 temp_dict = { 0: 'OK', 1: 'Hot', 2: 'Critical Hot' }
 usage_dict = { 0: 'OK', 1: 'Low Disk Space', 2: 'Very Low Disk Space' }
 
+# TODO: Get list from ROS parameter
 REMOVABLE = ['/dev/sg1', '/dev/sdb'] # Store removable drives so we can ignore if removed
 
 ## Connects to hddtemp daemon to get temp, HDD make.
@@ -192,10 +193,10 @@ class hdd_monitor():
         for index in range(0, len(drives)):
             temp = temps[index]
 
-            if not unicode(temp).isnumeric() and drives[index] not in REMOVABLE:
+            if not str(temp).isnumeric() and drives[index] not in REMOVABLE:
                 temp_level = DiagnosticStatus.ERROR
                 temp_ok = False
-            elif not unicode(temp).isnumeric() and drives[index] in REMOVABLE:
+            elif not str(temp).isnumeric() and drives[index] in REMOVABLE:
                 temp_level = DiagnosticStatus.OK
                 temp = "Removed"
             else:
@@ -252,14 +253,14 @@ class hdd_monitor():
 
             if (retcode == 0 or retcode == 1):
                 diag_vals.append(KeyValue(key = 'Disk Space Reading', value = 'OK'))
-                rows = stdout.split('\n')
+                rows = stdout.decode("utf-8").split('\n')
                 del rows[0]
                 row_count = 0
 
                 for row in rows:
                     if len(row.split()) < 2:
                         continue
-                    if unicode(row.split()[0]) == "none":
+                    if row.split()[0] == "none":
                         continue
 
                     row_count += 1
