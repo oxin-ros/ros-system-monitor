@@ -370,7 +370,7 @@ class CPUMonitor():
                     self._has_error_core_count = True
                 return DiagnosticStatus.ERROR, 'Incorrect number of CPU cores', vals
 
-        except Exception, e:
+        except Exception as e:
             mp_level = DiagnosticStatus.ERROR
             vals.append(KeyValue(key = 'mpstat Exception', value = str(e)))
 
