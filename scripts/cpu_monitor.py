@@ -272,7 +272,7 @@ class CPUMonitor():
             vals.append(KeyValue(key = 'Load Average (5min)', value = str(load5*1e2)+"%"))
             vals.append(KeyValue(key = 'Load Average (15min)', value = str(load15*1e2)+"%"))
 
-        except Exception, e:
+        except Exception as e:
             rospy.logerr(traceback.format_exc())
             level = DiagnosticStatus.ERROR
             vals.append(KeyValue(key = 'Load Average Status', value = traceback.format_exc()))
