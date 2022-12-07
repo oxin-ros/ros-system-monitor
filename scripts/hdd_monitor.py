@@ -38,14 +38,11 @@
 #    POSSIBILITY OF SUCH DAMAGE.                                           #
 ############################################################################
 
-from __future__ import with_statement
-
 import rospy
 
 import traceback
 import threading
-from threading import Timer
-import sys, os, time
+import sys
 from time import sleep
 import subprocess
 
@@ -62,6 +59,7 @@ stat_dict = { 0: 'OK', 1: 'Warning', 2: 'Error' }
 temp_dict = { 0: 'OK', 1: 'Hot', 2: 'Critical Hot' }
 usage_dict = { 0: 'OK', 1: 'Low Disk Space', 2: 'Very Low Disk Space' }
 
+# TODO: Get list from ROS parameter
 REMOVABLE = ['/dev/sg1', '/dev/sdb'] # Store removable drives so we can ignore if removed
 
 ## Connects to hddtemp daemon to get temp, HDD make.
@@ -79,7 +77,7 @@ def get_hddtemp_data(hostname = 'localhost', port = 7634):
 
         sock_vals = sock_data.split('|')
 
-        # Format of output looks like ' | DRIVE | MAKE | TEMP | ' 
+        # Format of output looks like ' | DRIVE | MAKE | TEMP | '
         idx = 0
 
         drives = []
@@ -99,7 +97,7 @@ def get_hddtemp_data(hostname = 'localhost', port = 7634):
             drives.append(this_drive)
             makes.append(this_make)
             temps.append(this_temp)
-                        
+
             idx += 5
 
         return True, drives, makes, temps
@@ -194,11 +192,11 @@ class hdd_monitor():
 
         for index in range(0, len(drives)):
             temp = temps[index]
-            
-            if not unicode(temp).isnumeric() and drives[index] not in REMOVABLE:
+
+            if not str(temp).isnumeric() and drives[index] not in REMOVABLE:
                 temp_level = DiagnosticStatus.ERROR
                 temp_ok = False
-            elif not unicode(temp).isnumeric() and drives[index] in REMOVABLE:
+            elif not str(temp).isnumeric() and drives[index] in REMOVABLE:
                 temp_level = DiagnosticStatus.OK
                 temp = "Removed"
             else:
@@ -209,7 +207,7 @@ class hdd_monitor():
                     temp_level = DiagnosticStatus.ERROR
 
             diag_level = max(diag_level, temp_level)
-            
+
             diag_strs.append(KeyValue(key = 'Disk %d Temperature Status' % index, value = temp_dict[temp_level]))
             diag_strs.append(KeyValue(key = 'Disk %d Mount Pt.' % index, value = drives[index]))
             diag_strs.append(KeyValue(key = 'Disk %d Device ID' % index, value = makes[index]))
@@ -255,14 +253,14 @@ class hdd_monitor():
 
             if (retcode == 0 or retcode == 1):
                 diag_vals.append(KeyValue(key = 'Disk Space Reading', value = 'OK'))
-                rows = stdout.split('\n')
+                rows = stdout.decode("utf-8").split('\n')
                 del rows[0]
                 row_count = 0
-                
+
                 for row in rows:
                     if len(row.split()) < 2:
                         continue
-                    if unicode(row.split()[0]) == "none":
+                    if row.split()[0] == "none":
                         continue
 
                     row_count += 1
@@ -317,7 +315,7 @@ class hdd_monitor():
             self._usage_stat.values = diag_vals
             self._usage_stat.message = diag_message
             self._usage_stat.level = diag_level
-            
+
             if not rospy.is_shutdown():
                 self._usage_timer = threading.Timer(5.0, self.check_disk_usage)
                 self._usage_timer.start()
@@ -329,11 +327,11 @@ class hdd_monitor():
         with self._mutex:
             msg = DiagnosticArray()
             msg.header.stamp = rospy.get_rostime()
-            
+
             if not self._no_temp:
               update_status_stale(self._temp_stat, self._last_temp_time)
               msg.status.append(self._temp_stat)
-              
+
             update_status_stale(self._usage_stat, self._last_usage_time)
             msg.status.append(self._usage_stat)
 
@@ -361,9 +359,9 @@ if __name__ == '__main__':
     try:
         rospy.init_node('hdd_monitor_%s' % hostname)
     except rospy.exceptions.ROSInitException:
-        print 'HDD monitor is unable to initialize node. Master may not be running.'
+        print('HDD monitor is unable to initialize node. Master may not be running.')
         sys.exit(0)
-        
+
     hdd_monitor = hdd_monitor(hostname, options.diag_hostname)
     rate = rospy.Rate(1.0)
 
@@ -373,7 +371,7 @@ if __name__ == '__main__':
             hdd_monitor.publish_stats()
     except KeyboardInterrupt:
         pass
-    except Exception, e:
+    except Exception as e:
         traceback.print_exc()
 
     hdd_monitor.cancel_timers()

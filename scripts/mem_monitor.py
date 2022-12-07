@@ -38,17 +38,13 @@
 #    POSSIBILITY OF SUCH DAMAGE.                                           #
 ############################################################################
 
-from __future__ import with_statement
-
 import rospy
 
 import traceback
 import threading
-from threading import Timer
-import sys, os, time
+import sys
 from time import sleep
 import subprocess
-import string
 import socket
 
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
@@ -82,7 +78,7 @@ def update_status_stale(stat, last_update_time):
     stat.values.pop(0)
     stat.values.insert(0, KeyValue(key = 'Update Status', value = stale_status))
     stat.values.insert(1, KeyValue(key = 'Time Since Update', value = str(time_since_update)))
-    
+
 
 class MemMonitor():
     def __init__(self, hostname, diag_hostname):
@@ -94,7 +90,7 @@ class MemMonitor():
         self._mem_level_error = rospy.get_param('~mem_level_error', mem_level_error)
 
         self._usage_timer = None
-        
+
         self._usage_stat = DiagnosticStatus()
         self._usage_stat.name = 'Memory Usage (%s)' % diag_hostname
         self._usage_stat.level = 1
@@ -132,7 +128,7 @@ class MemMonitor():
                 values.append(KeyValue(key = "\"free -tm\" Call Error", value = str(retcode)))
                 return DiagnosticStatus.ERROR, values
 
-            rows = stdout.split('\n')
+            rows = stdout.decode("utf-8").split('\n')
             data = rows[1].split()
             total_mem_physical = data[1]
             used_mem_physical = data[2]
@@ -167,7 +163,7 @@ class MemMonitor():
             values.append(KeyValue(key = 'Free Memory', value = free_mem+"M"))
 
             msg = mem_dict[level]
-        except Exception, e:
+        except Exception as e:
             rospy.logerr(traceback.format_exc())
             msg = 'Memory Usage Check Error'
             values.append(KeyValue(key = msg, value = str(e)))
@@ -179,7 +175,7 @@ class MemMonitor():
         if rospy.is_shutdown():
             with self._mutex:
                 self.cancel_timers()
-            return 
+            return
 
         diag_level = 0
         diag_vals = [ KeyValue(key = 'Update Status', value = 'OK' ),
@@ -203,9 +199,9 @@ class MemMonitor():
             self._last_usage_time = rospy.get_time()
             self._usage_stat.level = diag_level
             self._usage_stat.values = diag_vals
-            
+
             self._usage_stat.message = usage_msg
-            
+
             if not rospy.is_shutdown():
                 self._usage_timer = threading.Timer(5.0, self.check_usage)
                 self._usage_timer.start()
@@ -241,7 +237,7 @@ if __name__ == '__main__':
     try:
         rospy.init_node('mem_monitor_%s' % hostname)
     except rospy.exceptions.ROSInitException:
-        print >> sys.stderr, 'Memory monitor is unable to initialize node. Master may not be running.'
+        print('Memory monitor is unable to initialize node. Master may not be running.', file=sys.stderr)
         sys.exit(0)
 
     mem_node = MemMonitor(hostname, options.diag_hostname)
@@ -253,7 +249,7 @@ if __name__ == '__main__':
             mem_node.publish_stats()
     except KeyboardInterrupt:
         pass
-    except Exception, e:
+    except Exception as e:
         traceback.print_exc()
         rospy.logerr(traceback.format_exc())
 

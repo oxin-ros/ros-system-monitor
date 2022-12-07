@@ -1,4 +1,5 @@
-<package>
+<?xml version='1.0' encoding='utf8'?>
+<package format="3">
   <name>system_monitor</name>
   <version>0.1.0</version>
   <description>
@@ -10,11 +11,11 @@
   <license>GNU Lesser General Public License (LGPL)</license>
   <url>http://github.com/ethz-asl/ros-system-monitor</url>
   <buildtool_depend>catkin</buildtool_depend>
-  <run_depend>rospy</run_depend>
-  <run_depend>std_msgs</run_depend>
-  <run_depend>diagnostic_msgs</run_depend>
-  <run_depend>sysstat</run_depend>
-  <run_depend>hddtemp</run_depend>
-  <run_depend>ntpdate</run_depend>
-  <run_depend>ifstat</run_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>diagnostic_msgs</exec_depend>
+  <exec_depend>sysstat</exec_depend>
+  <exec_depend>hddtemp</exec_depend>
+  <exec_depend>ntpdate</exec_depend>
+  <exec_depend>ifstat</exec_depend>
 </package>
